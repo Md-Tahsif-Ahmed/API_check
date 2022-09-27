@@ -22,25 +22,16 @@ class DiscountList(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-         
-       data = request.data
-       product_discount = data['product_discount']
-       discount_amount = data['discount_amount']
-       start_date = data['start_date']
-       end_date = data['end_date']
-       start_time = data['start_time']
-       end_time = data['end_time']
-       #obj =obj(product_discount=product_discount, discount_amount=discount_amount, start_date=start_date, end_date=end_date, start_time=start_time, end_time=end_time)
-       #obj.save()
-       if((start_date != '' and end_date != '')and(start_time != '' and end_time != '')):
-            if(discount_amount < 100):
-                    serializer = DiscountSerializer(data=request.data)
-                    if serializer.is_valid():
-                        serializer.save()
-                        return Response(serializer.data, status=status.HTTP_201_CREATED)
-                    return Response(Http404)
-            return Response(Http404) 
-       return Response(Http404)
+        serializer = DiscountSerializer(data=request.data)
+        
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'msg': e.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+        
+            
 class DiscountDetail(APIView):
     """
     Detail, update, delete Discount  
@@ -77,13 +68,13 @@ class DiscountDetail(APIView):
 
 class DiscountSearch(APIView):
     def get(self, request, format=None):
-        data = self.request.data
-        str = data['str']
+        data = self.request.query_params
+        str = 'per'
          
-        q = (Q(description__icontains=str)) | (Q(title__icontains=str))
-        discount = Discount.objects.filter(is_published=True)
-        discount = discount.objects.filter(q)
-        serializer = ProductSerializer(discount, many=True)
+        q = (Q(type__icontains=str))
+        # discount = Discount.objects.filter(is_published=True)
+        discount = Discount.objects.filter(q)
+        serializer = DiscountSerializer(discount, many=True)
         return Response(serializer.data)
 
 

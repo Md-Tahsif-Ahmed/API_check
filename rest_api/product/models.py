@@ -1,5 +1,9 @@
 from itertools import product
+from random import choices
+from secrets import choice
 from django.db import models
+
+from product.enum import DiscountType
 
 
 # Create your models here.
@@ -7,10 +11,11 @@ from django.db import models
 class Discount(models.Model):
     product_discount = models.IntegerField(default=0)
     discount_amount = models.IntegerField(default=0)
-    start_date = models.DateField(auto_now_add=True)
-    end_date = models.DateField()
-    start_time = models.TimeField(auto_now_add=True)
-    end_time = models.TimeField()
+    type = models.CharField(default=DiscountType.FLAT_AMOUNT, choices=DiscountType.CHOICES, max_length=12)
+    start_date = models.DateField(null = True) 
+    end_date = models.DateField(null = True)
+    start_time = models.TimeField(null = True)
+    end_time = models.TimeField(null = True)
 
     flat_amount = models.IntegerField(default=0)
     percentage_amount = models.IntegerField(default=0)
